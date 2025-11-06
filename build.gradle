@@ -8,11 +8,12 @@ group = 'com.zencode'
 version = '0.0.1-SNAPSHOT'
 description = 'ZenCode 后端服务 - 基于 Spring AI 的现代化实现'
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
+// 移除工具链配置以使用系统默认Java版本
+// java {
+//     toolchain {
+//         languageVersion = JavaLanguageVersion.of(21)
+//     }
+// }
 
 configurations {
     compileOnly {
@@ -55,3 +56,14 @@ tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
 
+// 添加JVM参数以解决RMI端口冲突问题
+// 使用随机端口以避免冲突
+bootRun {
+    jvmArgs = [
+        '-Dcom.sun.management.jmxremote',
+        '-Dcom.sun.management.jmxremote.port=0',  // 使用随机端口
+        '-Dcom.sun.management.jmxremote.authenticate=false',
+        '-Dcom.sun.management.jmxremote.ssl=false',
+        '-Djava.rmi.server.hostname=localhost'
+    ]
+}

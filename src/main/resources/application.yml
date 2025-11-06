@@ -15,11 +15,11 @@ spring:
         format_sql: true
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY:}
-      base-url: ${OPENAI_BASE_URL:https://api.openai.com}
+      api-key: sk-d46ddfc0f6f545b89ce65de019b018bc  # 使用DeepSeek的API密钥
+      base-url: https://api.deepseek.com/v1  # DeepSeek的API基础URL
       chat:
         options:
-          model: gpt-4.1-mini
+          model: deepseek-chat  # DeepSeek的模型名称
           temperature: 0.2
 
 management:
@@ -41,10 +41,9 @@ springdoc:
     enabled: true
 
 server:
-  port: 8080
+  port: 9090  # 使用9090端口
 
 logging:
   level:
     org.springframework: info
     com.zencode.backend: debug
-

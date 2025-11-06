@@ -2,11 +2,11 @@ package com.zencode.backend.service;
 
 import com.zencode.backend.api.dto.AiInsightRequest;
 import com.zencode.backend.api.dto.AiInsightResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class AiInsightService {
 
@@ -21,8 +22,18 @@ public class AiInsightService {
     private final boolean aiEnabled;
 
     public AiInsightService(ObjectProvider<ChatModel> chatModelProvider) {
-        this.chatModel = chatModelProvider.getIfAvailable();
+        ChatModel availableModel = null;
+        try {
+            availableModel = chatModelProvider.getIfAvailable();
+        } catch (BeansException ex) {
+            log.warn("初始化 ChatModel 失败，已切换至离线模式: {}", ex.getMessage());
+        } catch (Exception ex) {
+            log.warn("初始化 ChatModel 失败，已切换至离线模式: {}", ex.getMessage(), ex);
+        }
+        this.chatModel = availableModel;
         this.aiEnabled = this.chatModel != null;
+        
+        log.info("AI Insight Service initialized with AI enabled: {}", this.aiEnabled);
     }
 
     public AiInsightResponse generateInsight(AiInsightRequest request) {
@@ -30,10 +41,10 @@ public class AiInsightService {
             return buildFallbackResponse(request);
         }
 
-        var messages = List.of(
-                new SystemMessage("你是 ZenCode 平台的多因子投研助理，请基于提供的信号生成结构化洞察。"),
-                new UserMessage(buildPromptText(request))
-        );
+        String messages = """
+                你是 ZenCode 平台的多因子投研助理，请基于提供的信号生成结构化洞察。
+                %s
+                """.formatted(buildPromptText(request));
 
         ChatResponse response = chatModel.call(new Prompt(messages));
         var output = response.getResult().getOutput();
@@ -112,4 +123,3 @@ public class AiInsightService {
         );
     }
 }
-
