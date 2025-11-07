@@ -10,4 +10,3 @@ public class ZencodeBackendApplication {
         SpringApplication.run(ZencodeBackendApplication.class, args);
     }
 }
-

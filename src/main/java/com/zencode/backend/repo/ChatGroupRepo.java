@@ -1,6 +1,8 @@
-package com.zencode.backend.api.mapper;
+package com.zencode.backend.repo;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zencode.backend.api.dto.ChatGroupDto;
+import com.zencode.backend.mapper.ChatGroupMapper;
 import com.zencode.backend.domain.agent.AgentEntity;
 import com.zencode.backend.domain.group.ChatGroupEntity;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +12,9 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class ChatGroupMapper {
+public class ChatGroupRepo extends ServiceImpl<ChatGroupMapper, ChatGroupEntity> {
 
-    private final AgentMapper agentMapper;
+    private final AgentRepo agentRepo;
 
     public ChatGroupDto toDto(ChatGroupEntity entity,
                               AgentEntity analyst,
@@ -29,11 +31,10 @@ public class ChatGroupMapper {
                 entity.getTelegramHandle(),
                 entity.getCreatedAt(),
                 entity.getMembers(),
-                agentMapper.toDto(analyst),
-                agentMapper.toDto(trader),
-                agentMapper.toDto(review),
-                signalAgents.stream().map(agentMapper::toDto).toList()
+                agentRepo.toDto(analyst),
+                agentRepo.toDto(trader),
+                agentRepo.toDto(review),
+                signalAgents.stream().map(agentRepo::toDto).toList()
         );
     }
 }
-

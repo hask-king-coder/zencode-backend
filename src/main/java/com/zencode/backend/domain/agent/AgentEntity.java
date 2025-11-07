@@ -1,21 +1,13 @@
 package com.zencode.backend.domain.agent;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
-
-@Entity
-@Table(name = "agents")
+@TableName("agents")
 @Getter
 @Setter
 @Builder
@@ -23,27 +15,26 @@ import java.util.UUID;
 @AllArgsConstructor
 public class AgentEntity {
 
-    @Id
-    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "uuid")
-    private UUID id;
+    @TableId(value = "id", type = IdType.NONE)
+    private String id;
 
-    @Column(name = "name", nullable = false)
+    @TableField("name")
     private String name;
 
-    @Column(name = "blueprint_id", nullable = false)
+    @TableField("blueprint_id")
     private String blueprintId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false, length = 32)
+    @TableField("role")
     private AgentRole role;
 
-    @Column(name = "enabled", nullable = false)
-    private boolean enabled;
+    @TableField("enabled")
+    private Boolean enabled;
 
-    @Column(name = "description", length = 1024)
+    @TableField("description")
     private String description;
 
-    @Column(name = "emoji", length = 16)
+    @TableField("emoji")
     private String emoji;
+
 }
 

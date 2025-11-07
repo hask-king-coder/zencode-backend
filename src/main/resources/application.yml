@@ -2,24 +2,30 @@ spring:
   application:
     name: zencode-backend
   datasource:
-    url: jdbc:h2:mem:zencode;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
-    password: 
-    driver-class-name: org.h2.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    open-in-view: false
-    properties:
-      hibernate:
-        format_sql: true
+    url: jdbc:mysql://127.0.0.1:3306/etherPoap?characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: never
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: none
+      table-underline: true
+
   ai:
-    openai:
-      api-key: sk-d46ddfc0f6f545b89ce65de019b018bc  # 使用DeepSeek的API密钥
-      base-url: https://api.deepseek.com/v1  # DeepSeek的API基础URL
+    deepseek:
+      api-key: sk-d46ddfc0f6f545b89ce65de019b018bc
+      base-url: https://api.deepseek.com/v1
       chat:
         options:
-          model: deepseek-chat  # DeepSeek的模型名称
+          model: deepseek-chat
           temperature: 0.2
 
 management:
@@ -47,3 +53,4 @@ logging:
   level:
     org.springframework: info
     com.zencode.backend: debug
+    com.baomidou.mybatisplus: debug

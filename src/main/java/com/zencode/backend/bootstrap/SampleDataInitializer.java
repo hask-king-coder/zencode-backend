@@ -5,9 +5,9 @@ import com.zencode.backend.domain.agent.AgentRole;
 import com.zencode.backend.domain.catalog.ApiDataSourceEntity;
 import com.zencode.backend.domain.catalog.DataCategory;
 import com.zencode.backend.domain.group.ChatGroupEntity;
-import com.zencode.backend.repository.AgentRepository;
-import com.zencode.backend.repository.ApiDataSourceRepository;
-import com.zencode.backend.repository.ChatGroupRepository;
+import com.zencode.backend.mapper.AgentMapper;
+import com.zencode.backend.mapper.ApiDataSourceMapper;
+import com.zencode.backend.mapper.ChatGroupMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -18,34 +18,33 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class SampleDataInitializer implements ApplicationRunner {
 
-    private final AgentRepository agentRepository;
-    private final ApiDataSourceRepository apiDataSourceRepository;
-    private final ChatGroupRepository chatGroupRepository;
+    private final AgentMapper agentMapper;
+    private final ApiDataSourceMapper apiDataSourceMapper;
+    private final ChatGroupMapper chatGroupMapper;
 
-    private static final UUID SIGNAL_AGENT_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID ANALYST_AGENT_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-    private static final UUID TRADER_AGENT_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
-    private static final UUID REVIEW_AGENT_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
-    private static final UUID SIGNAL_AGENT_DEFI_ID = UUID.fromString("55555555-5555-5555-5555-555555555555");
-    private static final UUID SIGNAL_AGENT_SOCIAL_ID = UUID.fromString("66666666-6666-6666-6666-666666666666");
-    private static final UUID GROUP_ALPHA_ID = UUID.fromString("77777777-7777-7777-7777-777777777777");
+    private static final String SIGNAL_AGENT_ID = "11111111-1111-1111-1111-111111111111";
+    private static final String ANALYST_AGENT_ID = "22222222-2222-2222-2222-222222222222";
+    private static final String TRADER_AGENT_ID = "33333333-3333-3333-3333-333333333333";
+    private static final String REVIEW_AGENT_ID = "44444444-4444-4444-4444-444444444444";
+    private static final String SIGNAL_AGENT_DEFI_ID = "55555555-5555-5555-5555-555555555555";
+    private static final String SIGNAL_AGENT_SOCIAL_ID = "66666666-6666-6666-6666-666666666666";
+    private static final String GROUP_ALPHA_ID = "77777777-7777-7777-7777-777777777777";
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        if (agentRepository.count() == 0) {
+        if (agentMapper.selectCount(null) == 0) {
             seedAgents();
         }
-        if (apiDataSourceRepository.count() == 0) {
+        if (apiDataSourceMapper.selectCount(null) == 0) {
             seedDataSources();
         }
-        if (chatGroupRepository.count() == 0) {
+        if (chatGroupMapper.selectCount(null) == 0) {
             seedChatGroups();
         }
     }
@@ -108,13 +107,13 @@ public class SampleDataInitializer implements ApplicationRunner {
                         .build()
         );
 
-        agentRepository.saveAll(agents);
+        agents.forEach(agentMapper::insert);
     }
 
     private void seedDataSources() {
         var sources = List.of(
                 ApiDataSourceEntity.builder()
-                        .id(UUID.fromString("10101010-1010-1010-1010-101010101010"))
+                        .id("10101010-1010-1010-1010-101010101010")
                         .slug("defillama-protocols")
                         .name("DefiLlama Protocols")
                         .category(DataCategory.ONCHAIN)
@@ -123,12 +122,12 @@ public class SampleDataInitializer implements ApplicationRunner {
                         .freeTier(true)
                         .description("全量 DeFi 协议 TVL、收入与链上指标，可用于构建板块热度、跨链监控。")
                         .bestFor("链上基本面监控")
-                        .tags(modifiableSet("tvl", "revenue"))
+                        // .tags(modifiableSet("tvl", "revenue")) // 暂时移除集合属性
                         .primaryRole(AgentRole.SIGNAL)
-                        .alsoSupports(modifiableSet(AgentRole.ANALYST))
+                        // .alsoSupports(modifiableSet(AgentRole.ANALYST)) // 暂时移除集合属性
                         .build(),
                 ApiDataSourceEntity.builder()
-                        .id(UUID.fromString("20202020-2020-2020-2020-202020202020"))
+                        .id("20202020-2020-2020-2020-202020202020")
                         .slug("okx-market-data")
                         .name("OKX Market Data")
                         .category(DataCategory.MARKET_DATA)
@@ -138,12 +137,12 @@ public class SampleDataInitializer implements ApplicationRunner {
                         .description("OKX 24 小时行情接口，兼容现货与永续，便于多交易所价差/流动性监控。")
                         .rateLimit("100 req/2s/IP")
                         .bestFor("多交易所行情融合")
-                        .tags(modifiableSet("crypto", "exchange"))
+                        // .tags(modifiableSet("crypto", "exchange")) // 暂时移除集合属性
                         .primaryRole(AgentRole.SIGNAL)
-                        .alsoSupports(modifiableSet(AgentRole.TRADER))
+                        // .alsoSupports(modifiableSet(AgentRole.TRADER)) // 暂时移除集合属性
                         .build(),
                 ApiDataSourceEntity.builder()
-                        .id(UUID.fromString("30303030-3030-3030-3030-303030303030"))
+                        .id("30303030-3030-3030-3030-303030303030")
                         .slug("tradingeconomics")
                         .name("TradingEconomics API")
                         .category(DataCategory.MACRO)
@@ -153,12 +152,12 @@ public class SampleDataInitializer implements ApplicationRunner {
                         .description("宏观经济指标、央行利率与经济体日历，支撑宏观因子建模。")
                         .rateLimit("1000 req/月")
                         .bestFor("宏观经济数据拉取")
-                        .tags(modifiableSet("macro", "calendar"))
+                        // .tags(modifiableSet("macro", "calendar")) // 暂时移除集合属性
                         .primaryRole(AgentRole.ANALYST)
-                        .alsoSupports(modifiableSet(AgentRole.REVIEW))
+                        // .alsoSupports(modifiableSet(AgentRole.REVIEW)) // 暂时移除集合属性
                         .build(),
                 ApiDataSourceEntity.builder()
-                        .id(UUID.fromString("40404040-4040-4040-4040-404040404040"))
+                        .id("40404040-4040-4040-4040-404040404040")
                         .slug("lunarcrush")
                         .name("LunarCrush Community API")
                         .category(DataCategory.SOCIAL)
@@ -168,12 +167,12 @@ public class SampleDataInitializer implements ApplicationRunner {
                         .description("聚合社交平台热度数据，量化情绪与影响力指标。")
                         .rateLimit("30 req/min")
                         .bestFor("跨平台情绪热度")
-                        .tags(modifiableSet("social", "sentiment"))
+                        // .tags(modifiableSet("social", "sentiment")) // 暂时移除集合属性
                         .primaryRole(AgentRole.SIGNAL)
-                        .alsoSupports(modifiableSet(AgentRole.ANALYST))
+                        // .alsoSupports(modifiableSet(AgentRole.ANALYST)) // 暂时移除集合属性
                         .build(),
                 ApiDataSourceEntity.builder()
-                        .id(UUID.fromString("50505050-5050-5050-5050-505050505050"))
+                        .id("50505050-5050-5050-5050-505050505050")
                         .slug("gdelt-v2")
                         .name("GDELT Global Events")
                         .category(DataCategory.NEWS)
@@ -182,13 +181,13 @@ public class SampleDataInitializer implements ApplicationRunner {
                         .freeTier(true)
                         .description("全球新闻与事件数据库，可筛选地缘与风险事件。")
                         .bestFor("全球事件雷达")
-                        .tags(modifiableSet("macro", "risk"))
+                        // .tags(modifiableSet("macro", "risk")) // 暂时移除集合属性
                         .primaryRole(AgentRole.REVIEW)
-                        .alsoSupports(modifiableSet(AgentRole.ANALYST, AgentRole.SIGNAL))
+                        // .alsoSupports(modifiableSet(AgentRole.ANALYST, AgentRole.SIGNAL)) // 暂时移除集合属性
                         .build()
         );
 
-        apiDataSourceRepository.saveAll(sources);
+        sources.forEach(apiDataSourceMapper::insert);
     }
 
     private void seedChatGroups() {
@@ -201,14 +200,14 @@ public class SampleDataInitializer implements ApplicationRunner {
                 .twitterHandle("ZenCodeHQ")
                 .telegramHandle("ZenCodeAlpha")
                 .createdAt(Instant.now())
-                .members(modifiableSet("system", "analyst", "trader", "review"))
-                .signalAgentIds(modifiableSet(SIGNAL_AGENT_ID, SIGNAL_AGENT_DEFI_ID, SIGNAL_AGENT_SOCIAL_ID))
+                // .members(modifiableSet("system", "analyst", "trader", "review")) // 暂时移除集合属性
+                // .signalAgentIds(modifiableSet(SIGNAL_AGENT_ID, SIGNAL_AGENT_DEFI_ID, SIGNAL_AGENT_SOCIAL_ID)) // 暂时移除集合属性
                 .analystAgentId(ANALYST_AGENT_ID)
                 .traderAgentId(TRADER_AGENT_ID)
                 .reviewAgentId(REVIEW_AGENT_ID)
                 .build();
 
-        chatGroupRepository.save(group);
+        chatGroupMapper.insert(group);
     }
 
     @SafeVarargs
@@ -216,4 +215,3 @@ public class SampleDataInitializer implements ApplicationRunner {
         return new HashSet<>(List.of(items));
     }
 }
-
