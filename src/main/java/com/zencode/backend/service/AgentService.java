@@ -33,7 +33,7 @@ public class AgentService {
      * @return 智能体 DTO 列表
      */
     public List<AgentDto> findAll() {
-        return agentMapper.selectList(null).stream()
+        return agentMapper.selectList(new QueryWrapper<>()).stream()
                 .map(agentRepo::toDto)
                 .toList();
     }

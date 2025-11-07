@@ -12,7 +12,7 @@ spring:
   ai:
     openai:
       api-key: sk-OZLkjQiMhcFmV6YYXqoRrlCIUT4CnnGARbQKsDCUsyU2wN7S
-      # 使用OpenAI的默认base-url
+      base-url: https://api.openai.com
       chat:
         options:
           model: gpt-3.5-turbo

@@ -9,6 +9,8 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -41,25 +43,33 @@ public class AiInsightService {
             return buildFallbackResponse(request);
         }
 
-        String messages = """
-                你是 ZenCode 平台的多因子投研助理，请基于提供的信号生成结构化洞察。
-                %s
-                """.formatted(buildPromptText(request));
+        try {
+            String messages = """
+                    你是 ZenCode 平台的多因子投研助理，请基于提供的信号生成结构化洞察。
+                    %s
+                    """.formatted(buildPromptText(request));
 
-        ChatResponse response = chatModel.call(new Prompt(messages));
-        var output = response.getResult().getOutput();
+            ChatResponse response = chatModel.call(new Prompt(messages));
+            var output = response.getResult().getOutput();
 
-        String content = output.getContent();
-        String model = chatModel.getClass().getSimpleName();
+            String content = output.getContent();
+            String model = chatModel.getClass().getSimpleName();
 
-        return new AiInsightResponse(
-                content,
-                true,
-                model,
-                Instant.now(),
-                extractHighlights(content),
-                buildRecommendations(request)
-        );
+            return new AiInsightResponse(
+                    content,
+                    true,
+                    model,
+                    Instant.now(),
+                    extractHighlights(content),
+                    buildRecommendations(request)
+            );
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error("调用AI服务时发生HTTP错误: {}", e.getMessage(), e);
+            return buildFallbackResponse(request);
+        } catch (Exception e) {
+            log.error("调用AI服务时发生未知错误: {}", e.getMessage(), e);
+            return buildFallbackResponse(request);
+        }
     }
 
     private String buildPromptText(AiInsightRequest request) {
