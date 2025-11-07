@@ -9,6 +9,14 @@ spring:
   sql:
     init:
       mode: never
+  ai:
+    openai:
+      api-key: sk-OZLkjQiMhcFmV6YYXqoRrlCIUT4CnnGARbQKsDCUsyU2wN7S
+      # 使用OpenAI的默认base-url
+      chat:
+        options:
+          model: gpt-3.5-turbo
+          temperature: 0.2
 
 mybatis-plus:
   configuration:
@@ -18,15 +26,6 @@ mybatis-plus:
     db-config:
       id-type: none
       table-underline: true
-
-  ai:
-    deepseek:
-      api-key: sk-d46ddfc0f6f545b89ce65de019b018bc
-      base-url: https://api.deepseek.com/v1
-      chat:
-        options:
-          model: deepseek-chat
-          temperature: 0.2
 
 management:
   endpoints:
